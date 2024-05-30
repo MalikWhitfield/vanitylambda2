@@ -1,6 +1,7 @@
 # callerVanityLambda
 
 ## Reasoning
+ - For the phone to vanity conversion, I just googled the 10 most commonly used letters and created a makeshift dictionary, and assigned a number to its corresponding letter value
  -  Nodejs Lambda because I was doing something kinda completely new in setting up the Lambda, DynamoDB, and Amazon Connect, so I wanted to have at least one thing I was familiar with. Although, quickly looking at a couple short tutorials using Python on YouTube, I don't know that it would've added a huge amount of complexity.
     - Chose x86_64 because it's used in i3, i5, i7, i9 processors and AMD processors. While I don't know too much about all of that, my limited research says those are "all PC compatible"
     - Didn't use API Gateway to expose the endpoint to the public, didn't believe it to be necessary. But that is something I'd like to look into more if given more time.

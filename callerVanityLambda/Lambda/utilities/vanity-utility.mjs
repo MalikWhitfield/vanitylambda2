@@ -1,3 +1,6 @@
+// For the phone to vanity conversion, I just googled the 10 most commonly used letters and created a makeshift dictionary, 
+//   and assigned a number to its corresponding letter value
+
 const digitToLetters = {
   '0': 'E',
   '1': 'T',
