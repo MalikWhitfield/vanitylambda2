@@ -64,10 +64,12 @@ export const handler = async (event) => {
       
       // With more time, I would've created a method that tries to find a better vanity match for the caller, based on the caller's vanity and the vanities we have saved already
       resultMap.vanity1 = callerVanity;
-      resultMap.vanity2 = stringArray[0];
-      resultMap.vanity3 = stringArray[1];
-      resultMap.vanity4 = stringArray[2];
-      resultMap.vanity5 = stringArray[3];
+      if(stringArray.length >= 4){
+        resultMap.vanity2 = stringArray[0];
+        resultMap.vanity3 = stringArray[1];
+        resultMap.vanity4 = stringArray[2];
+        resultMap.vanity5 = stringArray[3];
+      }
       console.log(stringArray, resultMap);
     }
     
