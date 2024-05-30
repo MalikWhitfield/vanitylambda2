@@ -35,16 +35,24 @@ Resources:
                 - "logs:CreateLogStream"
                 - "logs:PutLogEvents"
                 - "s3:GetObject"
-                - "dynamodb:*"
                Resource: 
                 - "arn:aws:logs:*:*:*"
                 - "arn:aws:s3:::lambda-bucket-4/*"
+        - PolicyName: "LambdaDynamoDBAccessPolicy"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+             - Effect: "Allow"
+               Action: 
+                - dynamodb:*
+               Resource: !GetAtt DynamoDB.Arn
+                
 
   LambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
       Handler: callerVanityLambda/Lambda/app.handler
-      Role: !Ref LambdaExecutionRole.Arn
+      Role: !GetAtt LambdaExecutionRole.Arn
       Code:
         S3Bucket: lambda-bucket-4
         S3Key: callerVanityLambda.zip
@@ -106,7 +114,7 @@ Resources:
                         },
                         "parameters": {
                             "LambdaFunctionARN": {
-                                "displayName": "!Ref !Ref LambdaFunction.Arn"
+                                "displayName": "<your-VAnity-Function>"
                             },
                             "LambdaInvocationAttributes": {
                                 "phoneNumber": {
