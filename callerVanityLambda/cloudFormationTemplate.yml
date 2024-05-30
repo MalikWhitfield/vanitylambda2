@@ -1,0 +1,213 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Resources:
+  DynamoDB:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: CallerAndVanity
+      AttributeDefinitions:
+        - AttributeName: PhoneNumber
+          AttributeType: S
+      KeySchema:
+        - AttributeName: PhoneNumber
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+
+  LambdaExecutionRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+         - Effect: "Allow"
+           Principal:
+            Service: "lambda.amazonaws.com"
+           Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: "LambdaS3Access"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+             - Effect: "Allow"
+               Action: 
+                - "logs:CreateLogGroup"
+                - "logs:CreateLogStream"
+                - "logs:PutLogEvents"
+                - "s3:GetObject"
+                - "dynamodb:*"
+               Resource: 
+                - "arn:aws:logs:*:*:*"
+                - "arn:aws:s3:::lambda-bucket-4/*"
+
+  LambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: callerVanityLambda/Lambda/app.handler
+      Role: !Ref LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: lambda-bucket-4
+        S3Key: callerVanityLambda.zip
+      Runtime: nodejs20.x
+      Environment:
+        Variables:
+          DYNAMODB_TABLE_NAME: !Ref DynamoDB
+
+  ConnectContactFlow:
+    Type: AWS::Connect::ContactFlow
+    Properties:
+      InstanceArn: arn:aws:connect:us-east-1:767397999721:instance/7e7c9b2a-80e5-44ac-94c1-14da21ed3fc4
+      Name: VanityFlow
+      Type: CONTACT_FLOW
+      Content: |
+        {
+            "Version": "2019-10-30",
+            "StartAction": "9a2834b6-cf54-4c7f-af4d-f2f4201d77f9",
+            "Metadata": {
+                "entryPointPosition": {
+                    "x": 40,
+                    "y": 40
+                },
+                "ActionMetadata": {
+                    "9a2834b6-cf54-4c7f-af4d-f2f4201d77f9": {
+                        "position": {
+                            "x": 54.4,
+                            "y": 259.2
+                        }
+                    },
+                    "57d1bc6c-d6ba-42b5-b5f1-20696df62789": {
+                        "position": {
+                            "x": 1194.4,
+                            "y": 88
+                        }
+                    },
+                    "3fdbfb42-7ccc-4f56-9b5d-d411106e5203": {
+                        "position": {
+                            "x": 263.2,
+                            "y": 44
+                        }
+                    },
+                    "e8c7e387-3af3-4f34-971c-56bc15c8006d": {
+                        "position": {
+                            "x": 808,
+                            "y": 167.2
+                        }
+                    },
+                    "3aade621-5471-425e-8ef5-472060ed8438": {
+                        "position": {
+                            "x": 823.2,
+                            "y": -154.4
+                        }
+                    },
+                    "eb99bde0-20b5-47fe-a070-68891b6a56f0": {
+                        "position": {
+                            "x": 522.4,
+                            "y": -84
+                        },
+                        "parameters": {
+                            "LambdaFunctionARN": {
+                                "displayName": "!Ref !Ref LambdaFunction.Arn"
+                            },
+                            "LambdaInvocationAttributes": {
+                                "phoneNumber": {
+                                    "useDynamic": true
+                                }
+                            }
+                        },
+                        "dynamicMetadata": {
+                            "phoneNumber": true
+                        }
+                    }
+                },
+                "Annotations": []
+            },
+            "Actions": [
+                {
+                    "Parameters": {
+                        "FlowLoggingBehavior": "Enabled"
+                    },
+                    "Identifier": "9a2834b6-cf54-4c7f-af4d-f2f4201d77f9",
+                    "Type": "UpdateFlowLoggingBehavior",
+                    "Transitions": {
+                        "NextAction": "3fdbfb42-7ccc-4f56-9b5d-d411106e5203"
+                    }
+                },
+                {
+                    "Parameters": {},
+                    "Identifier": "57d1bc6c-d6ba-42b5-b5f1-20696df62789",
+                    "Type": "EndFlowExecution",
+                    "Transitions": {}
+                },
+                {
+                    "Parameters": {
+                        "Text": "Welcome to Malik's Amazon Connect.\n\nStarting the phone to vanity conversion process using your phone number\n\n"
+                    },
+                    "Identifier": "3fdbfb42-7ccc-4f56-9b5d-d411106e5203",
+                    "Type": "MessageParticipant",
+                    "Transitions": {
+                        "NextAction": "eb99bde0-20b5-47fe-a070-68891b6a56f0",
+                        "Errors": [
+                            {
+                                "NextAction": "e8c7e387-3af3-4f34-971c-56bc15c8006d",
+                                "ErrorType": "NoMatchingError"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Parameters": {
+                        "Text": "ERror hitting Lambda\n\n$.External"
+                    },
+                    "Identifier": "e8c7e387-3af3-4f34-971c-56bc15c8006d",
+                    "Type": "MessageParticipant",
+                    "Transitions": {
+                        "NextAction": "57d1bc6c-d6ba-42b5-b5f1-20696df62789",
+                        "Errors": [
+                            {
+                                "NextAction": "57d1bc6c-d6ba-42b5-b5f1-20696df62789",
+                                "ErrorType": "NoMatchingError"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Parameters": {
+                        "Text": "Here are your potential vanity numbers.\n\nVanity 1\n\n$.External.vanity1\n\nVanity 2\n\n$.External.vanity2\n\nVanity 3\n\n$.External.vanity3\n\nVanity 4\n\n$.External.vanity4\n\nVanity 5\n\n$.External.vanity5\n"
+                    },
+                    "Identifier": "3aade621-5471-425e-8ef5-472060ed8438",
+                    "Type": "MessageParticipant",
+                    "Transitions": {
+                        "NextAction": "57d1bc6c-d6ba-42b5-b5f1-20696df62789",
+                        "Errors": [
+                            {
+                                "NextAction": "57d1bc6c-d6ba-42b5-b5f1-20696df62789",
+                                "ErrorType": "NoMatchingError"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "Parameters": {
+                        "LambdaFunctionARN": "arn:aws:lambda:us-east-1:215852261321:function:VanityFunction3",
+                        "InvocationTimeLimitSeconds": "8",
+                        "LambdaInvocationAttributes": {
+                            "phoneNumber": "$.CustomerEndpoint.Address"
+                        },
+                        "ResponseValidation": {
+                            "ResponseType": "STRING_MAP"
+                        }
+                    },
+                    "Identifier": "eb99bde0-20b5-47fe-a070-68891b6a56f0",
+                    "Type": "InvokeLambdaFunction",
+                    "Transitions": {
+                        "NextAction": "3aade621-5471-425e-8ef5-472060ed8438",
+                        "Errors": [
+                            {
+                                "NextAction": "e8c7e387-3af3-4f34-971c-56bc15c8006d",
+                                "ErrorType": "NoMatchingError"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
