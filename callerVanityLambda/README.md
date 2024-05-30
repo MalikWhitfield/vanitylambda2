@@ -51,11 +51,15 @@
  - Add input validation, Lock it down so that nothing is attempted if the phone number received is not acceptable and an error is thrown
  - Add unit testing, for example:
     - Utility Tests:
-      - make the phone number is converted successfully
-      - make sure an error is thrown when there is not a letter to match a character
-      - if we were to make the utitly more flexible, we'd want to also see if how it handles phone numbers without country codes,
+      - Verify the phone number is converted successfully
+      - Verify an error is thrown when there is not a letter to match a character
+      - If we were to make the utitly more flexible, we'd want to also see if how it handles phone numbers without country codes,
       - phone numbers with more than 11 digits
     - App.js: 
+      - Verify that we get a succcessful DB responses for the PUT and Scan requests
+      - Verify an expected returned result map
+      - Verify error handling in the DB for the PUT and SCAN requests
+      - Verify the newly created/callerVanity is not in the stringArray
 
 
 
