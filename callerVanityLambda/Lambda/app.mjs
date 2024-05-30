@@ -41,7 +41,6 @@ export const handler = async (event) => {
         },
       })
     );
-    console.log(putResults);
   }
     
   catch(error){
@@ -58,19 +57,15 @@ export const handler = async (event) => {
       
       // Removing the vanity that we just created/already have from the list, so that we can just use any others from the list
       stringArray = res.Items.filter(item => {
-        return item.vanityString != callerVanity
+        return item.VanityString != callerVanity
       }).map(vanity => vanity.VanityString);
-
       
       // With more time, I would've created a method that tries to find a better vanity match for the caller, based on the caller's vanity and the vanities we have saved already
       resultMap.vanity1 = callerVanity;
-      if(stringArray.length >= 4){
-        resultMap.vanity2 = stringArray[0];
-        resultMap.vanity3 = stringArray[1];
-        resultMap.vanity4 = stringArray[2];
-        resultMap.vanity5 = stringArray[3];
-      }
-      console.log(stringArray, resultMap);
+      resultMap.vanity2 = stringArray[0] ? stringArray[0] : "";
+      resultMap.vanity3 = stringArray[1] ? stringArray[1] : "";
+      resultMap.vanity4 = stringArray[2] ? stringArray[2] : "";
+      resultMap.vanity5 = stringArray[3] ? stringArray[3] : "";
     }
     
     
